@@ -8,11 +8,13 @@ import numpy as np
 from PIL import Image
 import dlib
 import os
+import argparse
 
 import torch.nn.functional as F
 import torch.optim as optim
+import cv2
 
-form model.MLT import MLT
+from model.MLT import MLT
 
 from model.AutomaticWeightedLoss import AutomaticWeightedLoss
 from Pytorch_Retinaface.models.retinaface import RetinaFace
@@ -20,8 +22,11 @@ from Pytorch_Retinaface.layers.functions.prior_box import PriorBox
 from Pytorch_Retinaface.utils.box_utils import decode, decode_landm
 from Pytorch_Retinaface.utils.nms.py_cpu_nms import py_cpu_nms
 from Pytorch_Retinaface.data import cfg_mnet, cfg_re50
+from Pytorch_Retinaface.detect import load_model
 
 from STAR.demo import GetCropMatrix, TransformPerspective, TransformPoints2D, Alignment, draw_pts
+
+import matplotlib.pyplot as plt
 
 
 def preprocess_image(image_path, retinaface_model, device, resize=1, confidence_threshold=0.02, nms_threshold=0.4, vis_thres=0.5):
@@ -36,7 +41,7 @@ def preprocess_image(image_path, retinaface_model, device, resize=1, confidence_
     img = torch.from_numpy(img).unsqueeze(0).to(device)  
 
     with torch.no_grad():
-        loc, conf, landms = retinaface_model(img) s
+        loc, conf, landms = retinaface_model(img)
 
     priorbox = PriorBox(cfg_mnet, image_size=(im_height, im_width))
     priors = priorbox.forward().to(device)  
@@ -68,13 +73,15 @@ def preprocess_image(image_path, retinaface_model, device, resize=1, confidence_
     landms = landms[keep]
 
     dets = np.concatenate((dets, landms), axis=1)
+
+    print(dets)
     
     if len(dets) == 0:
         return None, None
 
     b = dets[0].astype(int)
-    if b[4] < vis_thres:
-        return None, None
+    # if b[4] < vis_thres:
+    #     return None, None
 
     face = img_raw[b[1]:b[3], b[0]:b[2]]
     face = Image.fromarray(face)
@@ -87,8 +94,9 @@ def landmark_detection(image, dets, alignment):
     results = []
     for det in dets:
         x1, y1, x2, y2, conf = det[:5].astype(int)
-        if conf < 0.5:  
-            continue
+        print(x1, y1, x2, y2, conf )
+        # if conf < 0.5:  
+        #     continue
         
         face = image[y1:y2, x1:x2]
         center_w = (x2 + x1) / 2
@@ -96,6 +104,7 @@ def landmark_detection(image, dets, alignment):
         scale = min(x2 - x1, y2 - y1) / 200 * 1.05
         
         landmarks_pv = alignment.analyze(image, float(scale), float(center_w), float(center_h))
+        print(landmarks_pv)
         results.append(landmarks_pv)
         image = draw_pts(image, landmarks_pv)
     return image, results
@@ -105,23 +114,31 @@ def demo(model, retinaface_model, alignment, image_path, device):
     image_raw = cv2.imread(image_path)
     face, dets = preprocess_image(image_path, retinaface_model, device)
 
+
     model.eval()
 
+
+
+    image_draw, landmarks = landmark_detection(image_raw, dets, alignment)
+    print(landmarks)
+
+    if image_draw is not None and landmarks is not None:
+        img = cv2.cvtColor(image_draw, cv2.COLOR_BGR2RGB)
+        # plt.imshow(img)
+        # plt.show()
+        # plt.savefig('images/test_out.png', bbox_inches='tight', pad_inches=0)
+    else:
+        print("No landmarks detected.")
+
+    pil_image = Image.open(image_path)
+    image = transform(pil_image)
+    image = image.unsqueeze(0).to(device)
     with torch.no_grad():
         emotion_output, gaze_output, au_output = model(image)
 
     print("Emotion Output:", emotion_output)
     print("Gaze Output:", gaze_output)
     print("AU Output:", au_output)
-
-    image_draw, landmarks = preprocess_for_landmark_detection(image_raw, dets, alignment)
-
-    if image_draw is not None and landmarks is not None:
-        img = cv2.cvtColor(image_draw, cv2.COLOR_BGR2RGB)
-        plt.imshow(img)
-        plt.show()
-    else:
-        print("No landmarks detected.")
 
 
 
@@ -133,17 +150,17 @@ transform = transforms.Compose([
 
 
 if __name__ == '__main__':
-    image_path = ""
+    image_path = "/work/jiewenh/openFace/DATA/AffectNet/val_set/images/0.jpg"
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     model = MLT()  
-    model.load_state_dict(torch.load("/work/jiewenh/openFace/MLT/models/mix_au_uncerntainty/stage2_epoch_6_loss_1.2550_acc_0.5607.pth"))
+    model.load_state_dict(torch.load("/work/jiewenh/openFace/MLT/models/mix_au_test/stage2_epoch_7_loss_1.1606_acc_0.5589.pth"))
     model = model.to(device)
 
     cfg = cfg_mnet 
     retinaface_model = RetinaFace(cfg=cfg, phase='test')
-    retinaface_model = load_model(retinaface_model, '', device.type == 'cpu')
+    retinaface_model = load_model(retinaface_model, 'checkpoints/mobilenet0.25_Final.pth', device.type == 'cpu')
     retinaface_model.eval()
     retinaface_model = retinaface_model.to(device)
 
@@ -151,8 +168,9 @@ if __name__ == '__main__':
         "config_name": 'alignment',
         "device_id": device.index if device.type == 'cuda' else -1,
     }
-    model_path = ''
-    alignment = Alignment(config, model_path, dl_framework="pytorch", device_ids=device_ids)
+    args = argparse.Namespace(**config)
+    model_path = '/work/jiewenh/openFace/OpenFace-3.0/weights/WFLW_STARLoss_NME_4_02_FR_2_32_AUC_0_605.pkl'
+    alignment = Alignment(args, model_path, dl_framework="pytorch", device_ids=[0])
 
     demo(model, retinaface_model, alignment, image_path, device)
 

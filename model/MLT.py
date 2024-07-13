@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import timm
 
-from AU_model import *
+from .AU_model import *
 
 class MLT(nn.Module):
     def __init__(self, base_model_name='tf_efficientnet_b0_ns', expr_classes=8, au_numbers=8):
