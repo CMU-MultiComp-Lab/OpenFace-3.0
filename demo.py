@@ -160,7 +160,7 @@ if __name__ == '__main__':
 
     cfg = cfg_mnet 
     retinaface_model = RetinaFace(cfg=cfg, phase='test')
-    retinaface_model = load_model(retinaface_model, 'checkpoints/mobilenet0.25_Final.pth', device.type == 'cpu')
+    retinaface_model = load_model(retinaface_model, './weights/mobilenet0.25_Final.pth', device.type == 'cpu')
     retinaface_model.eval()
     retinaface_model = retinaface_model.to(device)
 
