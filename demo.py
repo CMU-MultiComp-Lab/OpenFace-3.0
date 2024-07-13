@@ -150,12 +150,12 @@ transform = transforms.Compose([
 
 
 if __name__ == '__main__':
-    image_path = "/work/jiewenh/openFace/DATA/AffectNet/val_set/images/0.jpg"
+    image_path = "images/0.jpg"
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     model = MLT()  
-    model.load_state_dict(torch.load("/work/jiewenh/openFace/MLT/models/mix_au_test/stage2_epoch_7_loss_1.1606_acc_0.5589.pth"))
+    model.load_state_dict(torch.load("./weights/stage2_epoch_7_loss_1.1606_acc_0.5589.pth"))
     model = model.to(device)
 
     cfg = cfg_mnet 
@@ -169,7 +169,7 @@ if __name__ == '__main__':
         "device_id": device.index if device.type == 'cuda' else -1,
     }
     args = argparse.Namespace(**config)
-    model_path = '/work/jiewenh/openFace/OpenFace-3.0/weights/WFLW_STARLoss_NME_4_02_FR_2_32_AUC_0_605.pkl'
+    model_path = './weights/WFLW_STARLoss_NME_4_02_FR_2_32_AUC_0_605.pkl'
     alignment = Alignment(args, model_path, dl_framework="pytorch", device_ids=[0])
 
     demo(model, retinaface_model, alignment, image_path, device)
