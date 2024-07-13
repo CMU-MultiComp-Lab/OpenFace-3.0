@@ -124,9 +124,9 @@ def demo(model, retinaface_model, alignment, image_path, device):
 
     if image_draw is not None and landmarks is not None:
         img = cv2.cvtColor(image_draw, cv2.COLOR_BGR2RGB)
-        # plt.imshow(img)
-        # plt.show()
-        # plt.savefig('images/test_out.png', bbox_inches='tight', pad_inches=0)
+        plt.imshow(img)
+        plt.show()
+        plt.savefig('images/test_out.png', bbox_inches='tight', pad_inches=0)
     else:
         print("No landmarks detected.")
 
