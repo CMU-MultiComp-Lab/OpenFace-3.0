@@ -126,8 +126,6 @@ LandmarkDetector(model_path: str, device: str = 'cpu', device_ids: List[int] = [
 - **`device_ids`** (`List[int]`, default: `[-1]`):  
   List of device IDs for multi-GPU setups. Ignored if `device='cpu'`.
 
----
-
 #### **`detect_landmarks`**
 ```python
 detect_landmarks(image: np.ndarray, dets: np.ndarray, confidence_threshold: float = 0.5) -> List[np.ndarray]
@@ -150,8 +148,6 @@ Detects facial landmarks for the detected faces in an image.
 ##### Returns:
 - **`List[np.ndarray]`**:  
   A list of detected landmarks for each face. Each entry is an array of shape \((n\_landmarks, 2)\), where \(n\_landmarks\) is the number of landmarks detected for the face.
-
----
 
 #### **Example Usage**
 
