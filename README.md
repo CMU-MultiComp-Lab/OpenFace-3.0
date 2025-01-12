@@ -183,8 +183,52 @@ else:
     print("No faces detected.")
 ```
 
-### 3. Extracting Emotions
-Emotion recognition uses 8 categories from the AffectNet dataset to classify emotions expressed by the face. The categories are:
+Here's the **MultitaskPredictor** module's usage instructions following the same structure and pattern as the previous modules.
+
+---
+
+### **3. Multitasking Predictions**
+
+The multitasking module performs three tasks simultaneously:
+1. **Emotion Recognition**: Classifies the facial expression into one of 8 emotion categories (based on the AffectNet dataset).
+2. **Gaze Estimation**: Predicts horizontal and vertical angles (yaw and pitch) representing the gaze direction.
+3. **Action Unit (AU) Detection**: Estimates the intensity of specific facial muscle activities corresponding to Action Units (AUs).
+
+The `MultitaskPredictor` class provides functionality to perform multitasking predictions (emotion, gaze, and AU detection) for a detected face.
+
+#### **Initialization**
+```python
+MultitaskPredictor(model_path: str, device: str = 'cpu')
+```
+
+#### **Parameters**
+- **`model_path`** (`str`):  
+  Path to the pre-trained multitasking model weights file.
+
+- **`device`** (`str`, default: `'cpu'`):  
+  The device to run the model on. Choose `'cpu'` or `'cuda'` for GPU inference.
+
+#### **`predict`**
+```python
+predict(face: np.ndarray) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]
+```
+Performs multitasking predictions (emotion, gaze, and action units) on the input face.
+
+##### Parameters:
+- **`face`** (`np.ndarray`):  
+  Cropped face image.
+
+##### Returns:
+- **`Tuple[torch.Tensor, torch.Tensor, torch.Tensor]`**:  
+  - **Emotion Output** (`torch.Tensor`): Logits for emotion categories.  
+  - **Gaze Output** (`torch.Tensor`): Predicted yaw and pitch angles.  
+  - **Action Unit Output** (`torch.Tensor`): Predicted intensities for action units.
+
+#### **Task Descriptions**
+
+##### **Emotion Recognition**
+Emotion recognition uses 8 categories derived from the AffectNet dataset to classify facial expressions:
+
 | Index | Emotion   |
 |-------|-----------|
 | 0     | Neutral   |
@@ -196,37 +240,54 @@ Emotion recognition uses 8 categories from the AffectNet dataset to classify emo
 | 6     | Anger     |
 | 7     | Contempt  |
 
-The emotion prediction returns one of these 8 categories:
+The model predicts the most likely emotion for the detected face.
+
+##### **Gaze Estimation**
+Gaze estimation predicts two continuous values:
+- **Yaw**: Horizontal gaze direction (left or right).
+- **Pitch**: Vertical gaze direction (up or down).
+
+##### **Action Unit Detection**
+Action Units (AUs) describe facial muscle movements corresponding to specific expressions. The multitasking model predicts the intensity of these AUs (e.g., AU1 for inner brow raise, AU6 for cheek raise).
+
+
+#### **Example Usage**
 
 ```python
-from openface.multitask_model import MultitaskModel
+import cv2
+from face_detector import FaceDetector
+from multitask_predictor import MultitaskPredictor
 
-# Initialize the multitask model
-model = MultitaskModel(device='cuda')
+# Initialize the FaceDetector
+face_model_path = './weights/mobilenet0.25_Final.pth'
+face_detector = FaceDetector(model_path=face_model_path, device='cuda')
 
-# Predict emotions from the face region
-_, emotions, _ = model.predict(face_region)  # 'face_region' is a cropped face image
-print("Emotion:", emotions)
+# Initialize the MultitaskPredictor
+multitask_model_path = './weights/stage2_epoch_7_loss_1.1606_acc_0.5589.pth'
+multitask_model = MultitaskPredictor(model_path=multitask_model_path, device='cuda')
+
+# Path to the input image
+image_path = 'path/to/input_image.jpg'
+
+# Detect face (returns cropped face as NumPy array and detection results)
+cropped_face, dets = face_detector.get_face(image_path)
+
+if cropped_face is not None and dets is not None:
+    print("Face detected!")
+
+    # Perform multitasking predictions
+    emotion_logits, gaze_output, au_output = multitask_model.predict(cropped_face)
+
+    # Process emotion output
+    emotion_index = torch.argmax(emotion_logits, dim=1).item()  # Get the predicted emotion index
+    print(f"Predicted Emotion Index: {emotion_index}")
+
+    # Process gaze output
+    print(f"Predicted Gaze (Yaw, Pitch): {gaze_output}")
+
+    # Process action units
+    print(f"Predicted Action Units (Intensities): {au_output}")
+else:
+    print("No face detected.")
 ```
-
-### 4. Extracting Action Units
-Action Units (AUs) are a fundamental unit used to describe facial expressions in terms of muscle movements. Each action unit represents a specific facial muscle activity.
-
-The multitasking model extracts the intensity of various AUs from the face:
-
-```python
-# Predict action units from the face region
-action_units, _, _ = model.predict(face_region)  # 'face_region' is a cropped face image
-print("Action Units (Intensity):", action_units)
-```
-
-### 5. Extracting Gaze
-Gaze estimation is the process of determining where a person is looking. In this toolkit, gaze is represented by two values: yaw and pitch, which describe the horizontal and vertical angles of the gaze.
-
-```python
-# Predict gaze from the face region
-_, _, gaze = model.predict(face_region)  # 'face_region' is a cropped face image
-print("Gaze (Yaw, Pitch):", gaze)
-```
-
 
