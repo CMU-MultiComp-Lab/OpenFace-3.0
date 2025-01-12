@@ -80,7 +80,7 @@ Detects faces in the image and extracts the cropped face region for the highest-
 
 ```python
 import cv2
-from face_detector import FaceDetector
+from openface.face_detection import FaceDetector
 
 # Initialize the FaceDetector
 model_path = './weights/mobilenet0.25_Final.pth'
@@ -153,8 +153,8 @@ Detects facial landmarks for the detected faces in an image.
 
 ```python
 import cv2
-from face_detector import FaceDetector
-from landmark_detector import LandmarkDetector
+from openface.face_detection import FaceDetector
+from openface.landmark_detection import LandmarkDetector
 
 # Initialize the FaceDetector
 face_model_path = './weights/mobilenet0.25_Final.pth'
@@ -255,8 +255,8 @@ Action Units (AUs) describe facial muscle movements corresponding to specific ex
 
 ```python
 import cv2
-from face_detector import FaceDetector
-from multitask_predictor import MultitaskPredictor
+from openface.face_detection import FaceDetector
+from openface.multitask_model import MultitaskPredictor
 
 # Initialize the FaceDetector
 face_model_path = './weights/mobilenet0.25_Final.pth'
