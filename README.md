@@ -24,7 +24,7 @@ This package integrates models such as RetinaFace for face detection, STAR for l
 
 ## Installation
 ```sh
-pip install openface_pypi
+pip install openface-test
 ```
 
 ## Usage
