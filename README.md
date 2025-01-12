@@ -29,30 +29,7 @@ pip install openface_pypi
 
 ## Usage
 
-### 1. Running the Overall Pipeline
-The following example shows how to use the OpenFace feature extraction package to extract all features (landmarks, action units, emotions, gaze) from an image:
-
-```python
-import cv2
-from openface import FaceFeatureExtractor
-
-# Initialize the feature extractor
-extractor = FaceFeatureExtractor(device='cuda')
-
-# Load an image
-image = cv2.imread('example.jpg')
-
-# Extract features
-features = extractor.extract_features(image)
-if features:
-    print("Landmarks:", features["landmarks"])
-    print("Action Units:", features["action_units"])
-    print("Emotions:", features["emotions"])
-    print("Gaze:", features["gaze"])
-```
-
-
-### 2. Face Detection
+### 1. Face Detection
 
 The `FaceDetector` class provides functionality to detect faces in images and extract the cropped face regions.
 
