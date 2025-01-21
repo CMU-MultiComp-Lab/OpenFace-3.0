@@ -21,10 +21,12 @@ This package integrates models such as RetinaFace for face detection, STAR for l
 - OpenCV
 - NumPy
 - Pillow
+- gdown
 
 ## Installation
 ```sh
 pip install openface-test
+openface download    #download model weights
 ```
 
 ## Usage
