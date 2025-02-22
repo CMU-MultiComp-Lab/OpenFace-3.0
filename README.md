@@ -1,8 +1,4 @@
 # OpenFace-3.0
-1. Create the environment: `conda env create -f environment.yml`
-2. Download model weights from the link in the `weights` folder
-3. run `demo.py`
-
 ## Overview
 OpenFace is a comprehensive toolkit for facial feature extraction, supporting face landmark detection, action unit detection, emotion recognition, and gaze estimation.
 
@@ -26,8 +22,9 @@ This package integrates models such as RetinaFace for face detection, STAR for l
 ## Installation
 ```sh
 pip install openface-test
-openface download    #download model weights
+openface download    #download model weights  
 ```
+Or you may manually download model weights ([google drive](https://drive.google.com/drive/folders/1aBEol-zG_blHSavKFVBH9dzc9U9eJ92p) / [huggingface](https://huggingface.co/nutPace/openface_weights))
 
 ## Usage
 
