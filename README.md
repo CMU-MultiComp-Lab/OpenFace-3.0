@@ -82,7 +82,7 @@ import cv2
 from openface.face_detection import FaceDetector
 
 # Initialize the FaceDetector
-model_path = './weights/mobilenet0.25_Final.pth'
+model_path = './weights/Alignment_RetinaFace.pth'
 detector = FaceDetector(model_path=model_path, device='cuda')
 
 # Path to the input image
@@ -117,7 +117,7 @@ LandmarkDetector(model_path: str, device: str = 'cpu', device_ids: List[int] = [
 
 #### **Parameters**
 - **`model_path`** (`str`):  
-  Path to the pre-trained alignment model weights file (e.g., `'./weights/WFLW_STARLoss_NME_4_02_FR_2_32_AUC_0_605.pkl'`).
+  Path to the pre-trained alignment model weights file (e.g., `'./weights/Landmark_98.pkl'`).
 
 - **`device`** (`str`, default: `'cpu'`):  
   The device to run the model on. Choose `'cpu'` or `'cuda'` for GPU inference.
@@ -156,11 +156,11 @@ from openface.face_detection import FaceDetector
 from openface.landmark_detection import LandmarkDetector
 
 # Initialize the FaceDetector
-face_model_path = './weights/mobilenet0.25_Final.pth'
+face_model_path = './weights/Alignment_RetinaFace.pth'
 face_detector = FaceDetector(model_path=face_model_path, device='cuda')
 
 # Initialize the LandmarkDetector
-landmark_model_path = './weights/WFLW_STARLoss_NME_4_02_FR_2_32_AUC_0_605.pkl'
+landmark_model_path = './weights/Landmark_98.pkl'
 landmark_detector = LandmarkDetector(model_path=landmark_model_path, device='cuda')
 
 # Path to the input image
@@ -258,11 +258,11 @@ from openface.face_detection import FaceDetector
 from openface.multitask_model import MultitaskPredictor
 
 # Initialize the FaceDetector
-face_model_path = './weights/mobilenet0.25_Final.pth'
+face_model_path = './weights/Alignment_RetinaFace.pth'
 face_detector = FaceDetector(model_path=face_model_path, device='cuda')
 
 # Initialize the MultitaskPredictor
-multitask_model_path = './weights/stage2_epoch_7_loss_1.1606_acc_0.5589.pth'
+multitask_model_path = './weights/MTL_backbone.pth'
 multitask_model = MultitaskPredictor(model_path=multitask_model_path, device='cuda')
 
 # Path to the input image
