@@ -2,6 +2,10 @@
 ## Overview
 OpenFace is a comprehensive toolkit for facial feature extraction, supporting face landmark detection, action unit detection, emotion recognition, and gaze estimation.
 
+![alt text](https://github.com/CMU-MultiComp-Lab/OpenFace-3.0/blob/main/images/overview2-2.png?raw=true)
+
+
+
 This package integrates models such as RetinaFace for face detection, STAR for landmark detection, and a multitask learning model for action unit, emotion, and gaze analysis.
 
 ## Features
