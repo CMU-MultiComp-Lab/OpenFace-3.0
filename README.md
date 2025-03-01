@@ -25,8 +25,8 @@ This package integrates models such as RetinaFace for face detection, STAR for l
 
 ## Installation
 ```sh
-pip install openface-test
 pip install -r requirements.txt
+pip install openface-test
 openface download    #download model weights with huggingface 
 ```
 Alternatively, you may manually download the model weights ([google drive](https://drive.google.com/drive/folders/1aBEol-zG_blHSavKFVBH9dzc9U9eJ92p) / [huggingface](https://huggingface.co/nutPace/openface_weights))
