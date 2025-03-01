@@ -9,7 +9,7 @@ pandas==2.2.3
 Pillow==9.4.0
 scipy==1.15.2
 seaborn==0.13.2
-skimage==0.0
+skimage
 tensorboardX==2.6.2.2
 timm==1.0.15
 torch==2.2.1
