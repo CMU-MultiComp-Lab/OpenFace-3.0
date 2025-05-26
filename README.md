@@ -295,3 +295,51 @@ else:
     print("No face detected.")
 ```
 
+
+
+
+### 4. Command-Line Interface (CLI)
+
+OpenFace 3.0 provides a simple command-line interface for running the full facial behavior analysis pipeline, including face detection, landmark extraction, emotion recognition, gaze estimation, and action unit prediction.
+
+#### **Usage**
+
+```bash
+openface detect "path/to/image.jpg" --output-dir "./results" --device cpu
+```
+
+#### **Arguments**
+
+* **`image_path`** (`str`):
+  Path to the input image file.
+
+* **`--output-dir`** (`str`, optional):
+  Directory to save the output results. The output will be saved as a TSV file. Default is the current directory.
+
+* **`--device`** (`str`, optional):
+  Device to run inference on. Options: `'cpu'` or `'cuda'`. Default is `'cpu'`.
+
+#### **Output Format**
+
+The CLI will generate a `.tsv` file containing predictions with the following columns:
+
+| Column Name      | Description                                   |
+| ---------------- | --------------------------------------------- |
+| `timestamp`      | Time of processing (in seconds since epoch)   |
+| `image_path`     | Path to the input image                       |
+| `face_id`        | Face ID (in case of multiple faces)           |
+| `face_detection` | Bounding box coordinates and confidence score |
+| `landmarks`      | 2D facial landmark coordinates                |
+| `emotion`        | Predicted emotion label                       |
+| `gaze_yaw`       | Predicted yaw angle (horizontal gaze)         |
+| `gaze_pitch`     | Predicted pitch angle (vertical gaze)         |
+| `action_units`   | AU intensity predictions                      |
+
+#### **Example**
+
+```bash
+openface detect "0.jpg" --output-dir "./" --device cpu
+```
+
+This will process the image `0.jpg` and save the result as a `.tsv` file in the current directory.
+
