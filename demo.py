@@ -25,6 +25,7 @@ from Pytorch_Retinaface.data import cfg_mnet, cfg_re50
 from Pytorch_Retinaface.detect import load_model
 
 from STAR.demo import GetCropMatrix, TransformPerspective, TransformPoints2D, Alignment, draw_pts
+from STAR.lib import utility
 
 import matplotlib.pyplot as plt
 
@@ -79,13 +80,16 @@ def preprocess_image(image_path, retinaface_model, device, resize=1, confidence_
     if len(dets) == 0:
         return None, None
 
-    b = dets[0].astype(int)
-    # if b[4] < vis_thres:
-    #     return None, None
+    conf = dets[0][4]
+    b = dets[0].astype(int) 
+    print(b)
+    if conf < vis_thres:
+        return None, None
 
     face = img_raw[b[1]:b[3], b[0]:b[2]]
     face = Image.fromarray(face)
     face = transform(face).unsqueeze(0).to(device)  
+
 
     return face, dets
 
@@ -93,10 +97,11 @@ def preprocess_image(image_path, retinaface_model, device, resize=1, confidence_
 def landmark_detection(image, dets, alignment):
     results = []
     for det in dets:
-        x1, y1, x2, y2, conf = det[:5].astype(int)
+        x1, y1, x2, y2 = det[:4].astype(int) 
+        conf = det[4]
         print(x1, y1, x2, y2, conf )
-        # if conf < 0.5:  
-        #     continue
+        if conf < 0.5:  
+            continue
         
         face = image[y1:y2, x1:x2]
         center_w = (x2 + x1) / 2
@@ -104,7 +109,6 @@ def landmark_detection(image, dets, alignment):
         scale = min(x2 - x1, y2 - y1) / 200 * 1.05
         
         landmarks_pv = alignment.analyze(image, float(scale), float(center_w), float(center_h))
-        print(landmarks_pv)
         results.append(landmarks_pv)
         image = draw_pts(image, landmarks_pv)
     return image, results
@@ -114,18 +118,23 @@ def demo(model, retinaface_model, alignment, image_path, device):
     image_raw = cv2.imread(image_path)
     face, dets = preprocess_image(image_path, retinaface_model, device)
 
-
     model.eval()
+
+    x1, y1, x2, y2= dets[0][:4]
+
+    # Crop the face using array slicing
+    cropped_face = image_raw[int(y1):int(y2), int(x1):int(x2)]
+    cv2.imwrite('images/cropped_face.jpg', cropped_face)
 
 
 
     image_draw, landmarks = landmark_detection(image_raw, dets, alignment)
-    print(landmarks)
+    # print(landmarks)
 
     if image_draw is not None and landmarks is not None:
         img = cv2.cvtColor(image_draw, cv2.COLOR_BGR2RGB)
-        plt.imshow(img)
-        plt.show()
+        # plt.imshow(img)
+        # plt.show()
         plt.savefig('images/test_out.png', bbox_inches='tight', pad_inches=0)
     else:
         print("No landmarks detected.")
@@ -149,13 +158,68 @@ transform = transforms.Compose([
 ])
 
 
+import torch
+from ptflops import get_model_complexity_info
+
+
+import torch
+import time
+
+def measure_inference_time(model, input_tensor, device, num_runs=200):
+    # Move model to the correct device
+    model.to(device)
+    model.eval()
+
+    # Warm-up to avoid any setup overhead in timing
+    with torch.no_grad():
+        for _ in range(10):
+            _ = model(input_tensor)
+
+    # Measure the time for multiple runs to get an average
+    start_time = time.time()
+    with torch.no_grad():
+        for _ in range(num_runs):
+            _ = model(input_tensor)
+    end_time = time.time()
+
+    # Calculate average time per run
+    avg_time_per_run = (end_time - start_time) / num_runs
+    return avg_time_per_run
+
+
 if __name__ == '__main__':
-    image_path = "images/0.jpg"
+    image_path = "/work/jiewenh/openFace/DATA/AffectNet/val/4/608.jpg"
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cpu")
 
     model = MLT()  
-    model.load_state_dict(torch.load("./weights/stage2_epoch_7_loss_1.1606_acc_0.5589.pth"))
+    model.load_state_dict(torch.load("./weights/stage2_epoch_7_loss_1.1606_acc_0.5589.pth", map_location=torch.device(device)))
+    model.eval()
+
+    cfg = cfg_mnet 
+    retinaface_model = RetinaFace(cfg=cfg, phase='test')
+    retinaface_model = load_model(retinaface_model, './weights/mobilenet0.25_Final.pth', True)
+    retinaface_model.eval()
+    retinaface_model = retinaface_model.to(device)
+
+    config = {
+        "config_name": 'alignment',
+        # "net": "stackedHGnet_v1",
+        "device_id": device.index if device.type == 'cuda' else -1,
+    }
+    args = argparse.Namespace(**config)
+    config = utility.get_config(args)
+    checkpoint = torch.load("./weights/WFLW_STARLoss_NME_4_02_FR_2_32_AUC_0_605.pkl", map_location='cpu')
+    net = utility.get_net(config)
+    net.load_state_dict(checkpoint["net"])
+    net.eval()
+    net = net.to(device)
+
+
+
+
+
     model = model.to(device)
 
     cfg = cfg_mnet 
