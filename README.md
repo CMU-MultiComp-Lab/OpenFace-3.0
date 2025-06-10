@@ -343,3 +343,21 @@ openface detect "0.jpg" --output-dir "./" --device cpu
 
 This will process the image `0.jpg` and save the result as a `.tsv` file in the current directory.
 
+## **Citation and Contact**
+
+Please cite this paper if you use OpenFace 3.0 in your research.
+
+ArXiv citation below (FG 2025 Proceedings not yet online):  
+
+```
+@article{hu2025openface,
+  title={OpenFace 3.0: A Lightweight Multitask System for Comprehensive Facial Behavior Analysis},
+  author={Hu, Jiewen and Mathur, Leena and Liang, Paul Pu and Morency, Louis-Philippe},
+  journal={arXiv preprint arXiv:2506.02891},
+  year={2025}
+}
+```
+
+If you have any questions, please open a Github issue on this repository.
+
+
