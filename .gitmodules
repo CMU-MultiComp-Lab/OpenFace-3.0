@@ -1,0 +1,6 @@
+[submodule "Pytorch_Retinaface"]
+	path = Pytorch_Retinaface
+	url = https://github.com/biubug6/Pytorch_Retinaface.git
+[submodule "STAR"]
+	path = STAR
+	url = https://github.com/ZhenglinZhou/STAR.git
